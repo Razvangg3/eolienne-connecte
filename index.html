@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<title>Wind Turbine Dashboard</title>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+body {
+  margin: 0;
+  font-family: Arial;
+  background: #0f172a;
+  color: white;
+}
+
+.container {
+  max-width: 1100px;
+  margin: auto;
+  padding: 20px;
+}
+
+h1 {
+  text-align: center;
+}
+
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 15px;
+}
+
+.card {
+  background: #1e293b;
+  padding: 15px;
+  border-radius: 15px;
+  text-align: center;
+}
+
+.value {
+  font-size: 28px;
+  font-weight: bold;
+}
+
+canvas {
+  margin-top: 30px;
+  background: #1e293b;
+  border-radius: 15px;
+  padding: 10px;
+}
+</style>
+</head>
+
+<body>
+
+<div class="container">
+
+<h1>🌬️ Éolienne IoT Dashboard</h1>
+
+<div class="grid">
+  <div class="card">
+    <h3>Température</h3>
+    <div id="temp" class="value">...</div>
+  </div>
+
+  <div class="card">
+    <h3>Humidité</h3>
+    <div id="hum" class="value">...</div>
+  </div>
+
+  <div class="card">
+    <h3>Vent</h3>
+    <div id="vent" class="value">...</div>
+  </div>
+</div>
+
+<canvas id="chartTemp"></canvas>
+<canvas id="chartHum"></canvas>
+<canvas id="chartVent"></canvas>
+
+</div>
+
+<script>
+
+// ⚠️ A MODIFIER
+const HA_URL = "https://clara-drink-marathon-pearl.trycloudflare.com";
+const HA_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI5MzMxNTVlMmNiMmQ0NDNmYTQ3MmMyZTRhNDFjNWY1ZiIsImlhdCI6MTc3NDUzMjg0MSwiZXhwIjoyMDg5ODkyODQxfQ.f5V4e7pYTAv8SCtr_Ctg-oE7BbEwjbCbicB4rdAnRWg";
+
+// historique
+let tempData = [];
+let humData = [];
+let ventData = [];
+let labels = [];
+
+async function getData() {
+  try {
+    const res = await fetch(`${HA_URL}/api/states`, {
+      headers: {
+        "Authorization": `Bearer ${HA_TOKEN}`,
+        "Content-Type": "application/json"
+      }
+    });
+
+    const data = await res.json();
+
+    const temp = data.find(e => e.entity_id === "sensor.temperature");
+    const hum = data.find(e => e.entity_id === "sensor.humidite");
+    const vent = data.find(e => e.entity_id === "sensor.vent");
+
+    const t = parseFloat(temp?.state);
+    const h = parseFloat(hum?.state);
+    const v = parseFloat(vent?.state);
+
+    document.getElementById("temp").innerText = t + " °C";
+    document.getElementById("hum").innerText = h + " %";
+    document.getElementById("vent").innerText = v + " km/h";
+
+    // historique
+    const time = new Date().toLocaleTimeString();
+    labels.push(time);
+
+    tempData.push(t);
+    humData.push(h);
+    ventData.push(v);
+
+    if(labels.length > 20){
+      labels.shift();
+      tempData.shift();
+      humData.shift();
+      ventData.shift();
+    }
+
+    updateCharts();
+
+  } catch(err) {
+    console.log("Erreur :", err);
+  }
+}
+
+// GRAPHIQUES
+const chartTemp = new Chart(document.getElementById("chartTemp"), {
+  type: "line",
+  data: { labels: [], datasets: [{ label: "Température", data: [] }] }
+});
+
+const chartHum = new Chart(document.getElementById("chartHum"), {
+  type: "line",
+  data: { labels: [], datasets: [{ label: "Humidité", data: [] }] }
+});
+
+const chartVent = new Chart(document.getElementById("chartVent"), {
+  type: "line",
+  data: { labels: [], datasets: [{ label: "Vent", data: [] }] }
+});
+
+function updateCharts() {
+  chartTemp.data.labels = labels;
+  chartTemp.data.datasets[0].data = tempData;
+
+  chartHum.data.labels = labels;
+  chartHum.data.datasets[0].data = humData;
+
+  chartVent.data.labels = labels;
+  chartVent.data.datasets[0].data = ventData;
+
+  chartTemp.update();
+  chartHum.update();
+  chartVent.update();
+}
+
+// refresh
+getData();
+setInterval(getData, 5000);
+
+</script>
+
+</body>
+</html>
