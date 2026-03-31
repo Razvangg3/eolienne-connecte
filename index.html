@@ -1,175 +1,665 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-<meta charset="UTF-8">
-<title>Wind Turbine Dashboard</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Éolienne Connectée — IoT Dashboard</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Rajdhani:wght@400;600;700&display=swap" rel="stylesheet"/>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg:        #050c12;
+      --bg2:       #091520;
+      --bg3:       #0d1f2d;
+      --accent:    #00e5ff;
+      --accent2:   #00ff9d;
+      --accent3:   #ff4d6d;
+      --accent4:   #ffd60a;
+      --border:    rgba(0,229,255,0.18);
+      --glow:      0 0 18px rgba(0,229,255,0.35);
+      --glow-g:    0 0 18px rgba(0,255,157,0.35);
+      --glow-r:    0 0 18px rgba(255,77,109,0.45);
+      --text:      #c8e6f0;
+      --muted:     #4a7a90;
+      --mono:      'Share Tech Mono', monospace;
+      --sans:      'Rajdhani', sans-serif;
+    }
 
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
-<style>
-body {
-  margin: 0;
-  font-family: Arial, sans-serif;
-  background: linear-gradient(135deg, #0f172a, #020617);
-  color: white;
-}
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: var(--sans);
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
 
-.container {
-  max-width: 1200px;
-  margin: auto;
-  padding: 20px;
-}
+    /* ─── GRID BACKGROUND ─── */
+    body::before {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background-image:
+        linear-gradient(rgba(0,229,255,0.04) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(0,229,255,0.04) 1px, transparent 1px);
+      background-size: 40px 40px;
+      pointer-events: none;
+    }
 
-.header {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-}
+    /* ─── SCANLINE ─── */
+    body::after {
+      content: '';
+      position: fixed; inset: 0; z-index: 0;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0,0,0,0.08) 2px,
+        rgba(0,0,0,0.08) 4px
+      );
+      pointer-events: none;
+    }
 
-h1 {
-  margin: 0;
-}
+    .wrapper { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 24px 20px 48px; }
 
-.status {
-  padding: 8px 15px;
-  border-radius: 20px;
-  background: #022c22;
-  color: #4ade80;
-  font-size: 14px;
-}
+    /* ─── HEADER ─── */
+    header {
+      display: flex; align-items: center; justify-content: space-between;
+      padding: 18px 28px;
+      border: 1px solid var(--border);
+      background: rgba(9,21,32,0.85);
+      backdrop-filter: blur(8px);
+      margin-bottom: 28px;
+      position: relative;
+      overflow: hidden;
+    }
+    header::after {
+      content: '';
+      position: absolute; bottom: 0; left: 0; right: 0; height: 2px;
+      background: linear-gradient(90deg, transparent, var(--accent), transparent);
+      animation: scanH 3s linear infinite;
+    }
+    @keyframes scanH { 0%{opacity:0.3} 50%{opacity:1} 100%{opacity:0.3} }
 
-.grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 20px;
-  margin-top: 20px;
-}
+    .logo { display: flex; align-items: center; gap: 14px; }
+    .turbine-icon {
+      width: 44px; height: 44px; position: relative;
+      animation: spinTurbine 4s linear infinite;
+    }
+    @keyframes spinTurbine { to { transform: rotate(360deg); } }
+    .turbine-icon svg { width: 44px; height: 44px; }
 
-.card {
-  background: rgba(30, 41, 59, 0.8);
-  backdrop-filter: blur(10px);
-  border-radius: 20px;
-  padding: 20px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
-}
+    .logo-text h1 {
+      font-family: var(--mono);
+      font-size: 1.15rem;
+      color: var(--accent);
+      text-shadow: var(--glow);
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+    }
+    .logo-text p {
+      font-size: 0.72rem;
+      color: var(--muted);
+      font-family: var(--mono);
+      letter-spacing: 0.08em;
+    }
 
-.card h3 {
-  margin: 0;
-  color: #94a3b8;
-}
+    .header-right { display: flex; align-items: center; gap: 20px; }
+    .status-dot {
+      width: 10px; height: 10px; border-radius: 50%;
+      background: var(--accent2);
+      box-shadow: 0 0 10px var(--accent2);
+      animation: pulse 2s ease-in-out infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.4)} }
+    .status-label { font-family: var(--mono); font-size: 0.72rem; color: var(--accent2); }
+    .clock { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); }
 
-.value {
-  font-size: 32px;
-  font-weight: bold;
-  margin-top: 10px;
-}
+    /* ─── CONFIG BANNER ─── */
+    .config-banner {
+      display: flex; gap: 12px; flex-wrap: wrap;
+      background: rgba(9,21,32,0.9);
+      border: 1px solid var(--border);
+      padding: 14px 20px;
+      margin-bottom: 24px;
+      align-items: center;
+    }
+    .config-banner label { font-family: var(--mono); font-size: 0.72rem; color: var(--muted); text-transform: uppercase; letter-spacing: 0.1em; }
+    .config-banner input {
+      background: rgba(0,229,255,0.05);
+      border: 1px solid var(--border);
+      color: var(--text);
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      padding: 6px 10px;
+      width: 300px;
+      outline: none;
+      transition: border-color .2s;
+    }
+    .config-banner input:focus { border-color: var(--accent); box-shadow: var(--glow); }
+    .config-banner input.token { width: 240px; }
+    .btn {
+      background: transparent;
+      border: 1px solid var(--accent);
+      color: var(--accent);
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      padding: 6px 16px;
+      cursor: pointer;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      transition: background .2s, box-shadow .2s;
+    }
+    .btn:hover { background: rgba(0,229,255,0.12); box-shadow: var(--glow); }
 
-.chart {
-  margin-top: 30px;
-  background: rgba(30,41,59,0.8);
-  border-radius: 20px;
-  padding: 15px;
-}
-</style>
+    /* ─── ALERT ZONE ─── */
+    #alert-zone { margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px; }
+    .alert {
+      display: flex; align-items: center; gap: 12px;
+      padding: 10px 18px;
+      border-left: 3px solid;
+      font-family: var(--mono);
+      font-size: 0.78rem;
+      animation: slideIn .3s ease;
+    }
+    @keyframes slideIn { from{transform:translateX(-16px);opacity:0} to{transform:none;opacity:1} }
+    .alert.warn  { border-color: var(--accent4); background: rgba(255,214,10,0.07); color: var(--accent4); }
+    .alert.danger{ border-color: var(--accent3); background: rgba(255,77,109,0.07); color: var(--accent3); }
+    .alert.ok    { border-color: var(--accent2); background: rgba(0,255,157,0.06); color: var(--accent2); }
+    .alert-icon { font-size: 1.1rem; }
+
+    /* ─── SENSOR CARDS ─── */
+    .cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; margin-bottom: 24px; }
+    @media(max-width:700px){ .cards{grid-template-columns:1fr;} }
+
+    .card {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      padding: 24px 22px 20px;
+      position: relative;
+      overflow: hidden;
+      transition: border-color .3s;
+    }
+    .card::before {
+      content: '';
+      position: absolute; top: 0; left: 0; right: 0; height: 2px;
+    }
+    .card.temp::before   { background: linear-gradient(90deg, transparent, #ff8c42, transparent); }
+    .card.hum::before    { background: linear-gradient(90deg, transparent, var(--accent), transparent); }
+    .card.wind::before   { background: linear-gradient(90deg, transparent, var(--accent2), transparent); }
+
+    .card:hover { border-color: rgba(0,229,255,0.4); }
+
+    .card-label {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 10px;
+      display: flex; align-items: center; gap: 8px;
+    }
+    .card-label span { font-size: 1rem; }
+
+    .card-value {
+      font-family: var(--mono);
+      font-size: 2.6rem;
+      line-height: 1;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+    }
+    .card.temp   .card-value { color: #ff8c42; text-shadow: 0 0 18px rgba(255,140,66,0.5); }
+    .card.hum    .card-value { color: var(--accent); text-shadow: var(--glow); }
+    .card.wind   .card-value { color: var(--accent2); text-shadow: var(--glow-g); }
+
+    .card-unit { font-size: 1rem; opacity: 0.6; margin-left: 4px; }
+    .card-sub {
+      font-family: var(--mono);
+      font-size: 0.68rem;
+      color: var(--muted);
+      margin-top: 10px;
+    }
+
+    /* bar gauge */
+    .gauge-bar {
+      height: 3px;
+      background: rgba(255,255,255,0.07);
+      margin-top: 14px;
+      border-radius: 2px;
+      overflow: hidden;
+    }
+    .gauge-fill {
+      height: 100%;
+      border-radius: 2px;
+      transition: width 1s ease;
+    }
+    .card.temp  .gauge-fill { background: linear-gradient(90deg, #ff4d6d, #ff8c42); }
+    .card.hum   .gauge-fill { background: linear-gradient(90deg, var(--accent), #0090a8); }
+    .card.wind  .gauge-fill { background: linear-gradient(90deg, var(--accent2), #007a5a); }
+
+    /* corner decoration */
+    .card::after {
+      content: '';
+      position: absolute; bottom: 8px; right: 8px;
+      width: 18px; height: 18px;
+      border-right: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+    }
+
+    /* ─── CHART ─── */
+    .chart-section {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      padding: 24px;
+      margin-bottom: 24px;
+      position: relative;
+    }
+    .section-title {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      text-transform: uppercase;
+      letter-spacing: 0.15em;
+      margin-bottom: 18px;
+      display: flex; align-items: center; gap: 10px;
+    }
+    .section-title::after {
+      content: '';
+      flex: 1;
+      height: 1px;
+      background: linear-gradient(90deg, var(--border), transparent);
+    }
+    .chart-wrap { position: relative; height: 240px; }
+
+    /* ─── LOG ─── */
+    .log-section {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      padding: 20px 24px;
+    }
+    #log {
+      font-family: var(--mono);
+      font-size: 0.72rem;
+      color: var(--muted);
+      max-height: 120px;
+      overflow-y: auto;
+      line-height: 1.8;
+    }
+    #log .entry { display: flex; gap: 10px; }
+    #log .ts { color: rgba(0,229,255,0.35); }
+    #log .msg { color: var(--muted); }
+    #log .msg.ok { color: var(--accent2); }
+    #log .msg.err { color: var(--accent3); }
+
+    /* ─── SPINNER ─── */
+    .spinner {
+      display: inline-block; width: 10px; height: 10px;
+      border: 1px solid var(--border); border-top-color: var(--accent);
+      border-radius: 50%; animation: spin .8s linear infinite;
+      margin-left: 8px; vertical-align: middle;
+    }
+    @keyframes spin { to{transform:rotate(360deg)} }
+
+    /* scrollbar */
+    ::-webkit-scrollbar { width: 4px; }
+    ::-webkit-scrollbar-track { background: transparent; }
+    ::-webkit-scrollbar-thumb { background: var(--border); }
+  </style>
 </head>
-
 <body>
+<div class="wrapper">
 
-<div class="container">
+  <!-- HEADER -->
+  <header>
+    <div class="logo">
+      <div class="turbine-icon">
+        <svg viewBox="0 0 44 44" fill="none" xmlns="http://www.w3.org/2000/svg">
+          <circle cx="22" cy="22" r="3.5" fill="#00e5ff" opacity="0.9"/>
+          <!-- blade 1 -->
+          <path d="M22 22 C18 12 12 8 14 4 C16 0 22 8 22 18Z" fill="#00e5ff" opacity="0.7"/>
+          <!-- blade 2 -->
+          <path d="M22 22 C32 24 38 20 40 23 C42 26 32 30 24 24Z" fill="#00e5ff" opacity="0.5"/>
+          <!-- blade 3 -->
+          <path d="M22 22 C12 30 10 38 7 38 C4 38 10 28 20 26Z" fill="#00e5ff" opacity="0.6"/>
+          <circle cx="22" cy="22" r="2" fill="#fff" opacity="0.9"/>
+        </svg>
+      </div>
+      <div class="logo-text">
+        <h1>Éolienne Connectée</h1>
+        <p>IoT MONITORING SYSTEM · ESP8266 + HOME ASSISTANT</p>
+      </div>
+    </div>
+    <div class="header-right">
+      <div class="status-dot" id="statusDot"></div>
+      <span class="status-label" id="statusLabel">CONNECTING…</span>
+      <span class="clock" id="clock">--:--:--</span>
+    </div>
+  </header>
 
-<div class="header">
-  <h1>🌬️ Wind Turbine Dashboard</h1>
-  <div class="status">● CONNECTÉ</div>
-</div>
-
-<div class="grid">
-  <div class="card">
-    <h3>Température</h3>
-    <div id="temp" class="value">...</div>
+  <!-- CONFIG -->
+  <div class="config-banner">
+    <div>
+      <label>URL Cloudflare</label><br>
+      <input type="text" id="haUrl" placeholder="https://xxxx.trycloudflare.com" />
+    </div>
+    <div>
+      <label>Token HA</label><br>
+      <input type="text" id="haToken" class="token" placeholder="eyJ0eXAiOiJK..." />
+    </div>
+    <div style="padding-top:18px">
+      <button class="btn" onclick="saveConfig()">▶ Connecter</button>
+    </div>
+    <div style="padding-top:18px">
+      <button class="btn" onclick="loadDemo()" style="border-color:var(--muted);color:var(--muted)">DÉMO</button>
+    </div>
   </div>
 
-  <div class="card">
-    <h3>Humidité</h3>
-    <div id="hum" class="value">...</div>
+  <!-- ALERTS -->
+  <div id="alert-zone"></div>
+
+  <!-- CARDS -->
+  <div class="cards">
+    <div class="card temp">
+      <div class="card-label"><span>🌡</span> Température</div>
+      <div class="card-value" id="tempVal">--<span class="card-unit">°C</span></div>
+      <div class="card-sub" id="tempSub">entity: sensor.temperature</div>
+      <div class="gauge-bar"><div class="gauge-fill" id="tempBar" style="width:0%"></div></div>
+    </div>
+    <div class="card hum">
+      <div class="card-label"><span>💧</span> Humidité</div>
+      <div class="card-value" id="humVal">--<span class="card-unit">%</span></div>
+      <div class="card-sub" id="humSub">entity: sensor.humidity</div>
+      <div class="gauge-bar"><div class="gauge-fill" id="humBar" style="width:0%"></div></div>
+    </div>
+    <div class="card wind">
+      <div class="card-label"><span>🌬</span> Vent</div>
+      <div class="card-value" id="windVal">--<span class="card-unit">km/h</span></div>
+      <div class="card-sub" id="windSub">entity: sensor.wind_speed</div>
+      <div class="gauge-bar"><div class="gauge-fill" id="windBar" style="width:0%"></div></div>
+    </div>
   </div>
 
-  <div class="card">
-    <h3>Vent</h3>
-    <div id="vent" class="value">...</div>
+  <!-- CHART -->
+  <div class="chart-section">
+    <div class="section-title">// HISTORIQUE — 20 DERNIÈRES MESURES</div>
+    <div class="chart-wrap">
+      <canvas id="historyChart"></canvas>
+    </div>
   </div>
-</div>
 
-<div class="chart">
-  <canvas id="chart"></canvas>
-</div>
+  <!-- LOG -->
+  <div class="log-section">
+    <div class="section-title">// JOURNAL SYSTÈME</div>
+    <div id="log"></div>
+  </div>
 
 </div>
 
 <script>
+/* ───────── CONFIG ───────── */
+const ENTITY_TEMP  = 'sensor.temperature';
+const ENTITY_HUM   = 'sensor.humidity';
+const ENTITY_WIND  = 'sensor.wind_speed';
+const REFRESH_MS   = 5000;
+const HISTORY_MAX  = 20;
 
-// 🔧 A MODIFIER
-const HA_URL = "https://clara-drink-marathon-pearl.trycloudflare.com";
-const HA_TOKEN = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiI5MzMxNTVlMmNiMmQ0NDNmYTQ3MmMyZTRhNDFjNWY1ZiIsImlhdCI6MTc3NDUzMjg0MSwiZXhwIjoyMDg5ODkyODQxfQ.f5V4e7pYTAv8SCtr_Ctg-oE7BbEwjbCbicB4rdAnRWg";
+/* ───────── STATE ───────── */
+let haUrl   = '';
+let haToken = '';
+let history = { labels:[], temp:[], hum:[], wind:[] };
+let chart;
+let fetchTimer;
+let demoMode = false;
+let demoT = 0;
 
-// historique
-let labels = [];
-let tempData = [];
+/* ───────── CLOCK ───────── */
+setInterval(() => {
+  document.getElementById('clock').textContent = new Date().toLocaleTimeString('fr-FR');
+}, 1000);
 
-async function getData() {
-  try {
-    const res = await fetch(`${HA_URL}/api/states`, {
-      headers: {
-        "Authorization": `Bearer ${HA_TOKEN}`
+/* ───────── CHART INIT ───────── */
+function initChart() {
+  const ctx = document.getElementById('historyChart').getContext('2d');
+  chart = new Chart(ctx, {
+    type: 'line',
+    data: {
+      labels: history.labels,
+      datasets: [
+        {
+          label: 'Température (°C)',
+          data: history.temp,
+          borderColor: '#ff8c42',
+          backgroundColor: 'rgba(255,140,66,0.08)',
+          borderWidth: 1.5,
+          tension: 0.4,
+          pointRadius: 3,
+          pointBackgroundColor: '#ff8c42',
+        },
+        {
+          label: 'Humidité (%)',
+          data: history.hum,
+          borderColor: '#00e5ff',
+          backgroundColor: 'rgba(0,229,255,0.06)',
+          borderWidth: 1.5,
+          tension: 0.4,
+          pointRadius: 3,
+          pointBackgroundColor: '#00e5ff',
+        },
+        {
+          label: 'Vent (km/h)',
+          data: history.wind,
+          borderColor: '#00ff9d',
+          backgroundColor: 'rgba(0,255,157,0.06)',
+          borderWidth: 1.5,
+          tension: 0.4,
+          pointRadius: 3,
+          pointBackgroundColor: '#00ff9d',
+        }
+      ]
+    },
+    options: {
+      responsive: true,
+      maintainAspectRatio: false,
+      animation: { duration: 500 },
+      plugins: {
+        legend: {
+          labels: {
+            color: '#4a7a90',
+            font: { family: "'Share Tech Mono', monospace", size: 11 },
+            boxWidth: 12,
+          }
+        },
+        tooltip: {
+          backgroundColor: 'rgba(9,21,32,0.95)',
+          borderColor: 'rgba(0,229,255,0.2)',
+          borderWidth: 1,
+          titleFont: { family: "'Share Tech Mono', monospace", size: 11 },
+          bodyFont:  { family: "'Share Tech Mono', monospace", size: 11 },
+          titleColor: '#00e5ff',
+          bodyColor:  '#c8e6f0',
+        }
+      },
+      scales: {
+        x: {
+          ticks: { color: '#4a7a90', font: { family: "'Share Tech Mono', monospace", size: 10 }, maxRotation: 0 },
+          grid:  { color: 'rgba(0,229,255,0.05)' },
+          border:{ color: 'rgba(0,229,255,0.1)' }
+        },
+        y: {
+          ticks: { color: '#4a7a90', font: { family: "'Share Tech Mono', monospace", size: 10 } },
+          grid:  { color: 'rgba(0,229,255,0.05)' },
+          border:{ color: 'rgba(0,229,255,0.1)' }
+        }
       }
-    });
-
-    const data = await res.json();
-
-    const temp = data.find(e => e.entity_id === "sensor.temperature");
-    const hum = data.find(e => e.entity_id === "sensor.humidite");
-    const vent = data.find(e => e.entity_id === "sensor.vent");
-
-    const t = parseFloat(temp?.state);
-    const h = parseFloat(hum?.state);
-    const v = parseFloat(vent?.state);
-
-    document.getElementById("temp").innerText = t + " °C";
-    document.getElementById("hum").innerText = h + " %";
-    document.getElementById("vent").innerText = v + " km/h";
-
-    // graph
-    labels.push(new Date().toLocaleTimeString());
-    tempData.push(t);
-
-    if(labels.length > 15){
-      labels.shift();
-      tempData.shift();
     }
+  });
+}
 
-    chart.update();
+/* ───────── ALERT SYSTEM ───────── */
+function updateAlerts(temp, hum, wind) {
+  const zone = document.getElementById('alert-zone');
+  zone.innerHTML = '';
 
-  } catch(err) {
-    document.querySelector(".status").innerText = "● ERREUR";
-    document.querySelector(".status").style.background = "#450a0a";
-    document.querySelector(".status").style.color = "#f87171";
+  const alerts = [];
+  if (temp !== null) {
+    if (temp > 35)       alerts.push({ type:'danger', icon:'🔥', msg:`TEMPÉRATURE CRITIQUE : ${temp}°C — surchauffe possible` });
+    else if (temp > 28)  alerts.push({ type:'warn',   icon:'⚠️', msg:`Température élevée : ${temp}°C` });
+    else if (temp < 0)   alerts.push({ type:'warn',   icon:'🧊', msg:`Température négative : ${temp}°C` });
+  }
+  if (hum !== null) {
+    if (hum > 90)        alerts.push({ type:'warn',   icon:'💧', msg:`Humidité très élevée : ${hum}% — risque de condensation` });
+    else if (hum < 20)   alerts.push({ type:'warn',   icon:'🏜️', msg:`Humidité très basse : ${hum}%` });
+  }
+  if (wind !== null) {
+    if (wind > 80)       alerts.push({ type:'danger', icon:'🌀', msg:`VENT VIOLENT : ${wind} km/h — arrêt recommandé` });
+    else if (wind > 50)  alerts.push({ type:'warn',   icon:'💨', msg:`Vent fort : ${wind} km/h` });
+  }
+  if (alerts.length === 0) {
+    alerts.push({ type:'ok', icon:'✓', msg:'Conditions normales — tous les capteurs dans les limites' });
+  }
+
+  alerts.forEach(a => {
+    const el = document.createElement('div');
+    el.className = `alert ${a.type}`;
+    el.innerHTML = `<span class="alert-icon">${a.icon}</span>${a.msg}`;
+    zone.appendChild(el);
+  });
+}
+
+/* ───────── LOG ───────── */
+function log(msg, type='') {
+  const el = document.getElementById('log');
+  const ts  = new Date().toLocaleTimeString('fr-FR');
+  el.innerHTML += `<div class="entry"><span class="ts">[${ts}]</span><span class="msg ${type}">${msg}</span></div>`;
+  el.scrollTop = el.scrollHeight;
+  if (el.children.length > 30) el.removeChild(el.firstChild);
+}
+
+/* ───────── UPDATE CARD ───────── */
+function updateCard(valId, barId, subId, value, unit, max, ts) {
+  const el = document.getElementById(valId);
+  el.innerHTML = value !== null
+    ? `${parseFloat(value).toFixed(1)}<span class="card-unit">${unit}</span>`
+    : `--<span class="card-unit">${unit}</span>`;
+  document.getElementById(barId).style.width = value !== null
+    ? Math.min(100, (parseFloat(value)/max)*100)+'%' : '0%';
+  if (ts) document.getElementById(subId).textContent = `Mis à jour : ${ts}`;
+}
+
+/* ───────── PUSH TO HISTORY ───────── */
+function pushHistory(temp, hum, wind) {
+  const t = new Date().toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
+  const push = (arr, val) => { arr.push(val); if(arr.length>HISTORY_MAX) arr.shift(); };
+  push(history.labels, t);
+  push(history.temp,   temp  !== null ? parseFloat(temp)  : null);
+  push(history.hum,    hum   !== null ? parseFloat(hum)   : null);
+  push(history.wind,   wind  !== null ? parseFloat(wind)  : null);
+  if (chart) chart.update();
+}
+
+/* ───────── FETCH HA ───────── */
+async function fetchHA() {
+  if (demoMode) { runDemo(); return; }
+  if (!haUrl || !haToken) return;
+
+  setStatus('loading');
+  try {
+    const headers = {
+      'Authorization': `Bearer ${haToken}`,
+      'Content-Type': 'application/json'
+    };
+    const [rT, rH, rW] = await Promise.all([
+      fetch(`${haUrl}/api/states/${ENTITY_TEMP}`,  { headers }),
+      fetch(`${haUrl}/api/states/${ENTITY_HUM}`,   { headers }),
+      fetch(`${haUrl}/api/states/${ENTITY_WIND}`,  { headers }),
+    ]);
+
+    let temp=null, hum=null, wind=null, ts='';
+    if (rT.ok) { const d=await rT.json(); temp=d.state; ts=new Date(d.last_updated).toLocaleTimeString('fr-FR'); }
+    if (rH.ok) { const d=await rH.json(); hum=d.state; }
+    if (rW.ok) { const d=await rW.json(); wind=d.state; }
+
+    updateCard('tempVal','tempBar','tempSub', temp,  '°C',    50, ts);
+    updateCard('humVal', 'humBar', 'humSub',  hum,   '%',     100, ts);
+    updateCard('windVal','windBar','windSub', wind,  ' km/h', 120, ts);
+    updateAlerts(temp!==null?parseFloat(temp):null, hum!==null?parseFloat(hum):null, wind!==null?parseFloat(wind):null);
+    pushHistory(temp, hum, wind);
+    setStatus('online');
+    log('Données reçues — T:'+temp+'°C H:'+hum+'% V:'+wind+'km/h', 'ok');
+  } catch(e) {
+    setStatus('offline');
+    log('Erreur de connexion : '+e.message, 'err');
   }
 }
 
-const chart = new Chart(document.getElementById("chart"), {
-  type: "line",
-  data: {
-    labels: labels,
-    datasets: [{
-      label: "Température",
-      data: tempData
-    }]
-  }
+/* ───────── DEMO MODE ───────── */
+function loadDemo() {
+  demoMode = true;
+  document.getElementById('haUrl').value   = 'MODE DÉMO ACTIVÉ';
+  document.getElementById('haToken').value = '••••••••••';
+  log('Mode démo activé — données simulées', 'ok');
+  startFetching();
+}
+
+function runDemo() {
+  demoT++;
+  const temp  = +(18 + 10*Math.sin(demoT*0.15) + Math.random()*1.5).toFixed(1);
+  const hum   = +(55 + 25*Math.cos(demoT*0.1)  + Math.random()*2).toFixed(1);
+  const wind  = +(20 + 30*Math.abs(Math.sin(demoT*0.08)) + Math.random()*5).toFixed(1);
+  const ts    = new Date().toLocaleTimeString('fr-FR');
+  updateCard('tempVal','tempBar','tempSub', temp,  '°C',    50, ts);
+  updateCard('humVal', 'humBar', 'humSub',  hum,   '%',     100, ts);
+  updateCard('windVal','windBar','windSub', wind,  ' km/h', 120, ts);
+  updateAlerts(temp, hum, wind);
+  pushHistory(temp, hum, wind);
+  setStatus('online');
+  log(`[DEMO] T:${temp}°C H:${hum}% V:${wind}km/h`, 'ok');
+}
+
+/* ───────── STATUS ───────── */
+function setStatus(s) {
+  const dot   = document.getElementById('statusDot');
+  const label = document.getElementById('statusLabel');
+  if (s==='online')  { dot.style.background='#00ff9d'; dot.style.boxShadow='0 0 10px #00ff9d'; label.style.color='#00ff9d'; label.textContent='EN LIGNE'; }
+  if (s==='offline') { dot.style.background='#ff4d6d'; dot.style.boxShadow='0 0 10px #ff4d6d'; label.style.color='#ff4d6d'; label.textContent='HORS LIGNE'; }
+  if (s==='loading') { dot.style.background='#ffd60a'; dot.style.boxShadow='0 0 10px #ffd60a'; label.style.color='#ffd60a'; label.textContent='SYNCHRO…'; }
+}
+
+/* ───────── CONFIG ───────── */
+function saveConfig() {
+  haUrl   = document.getElementById('haUrl').value.trim().replace(/\/$/, '');
+  haToken = document.getElementById('haToken').value.trim();
+  demoMode = false;
+  if (!haUrl || !haToken) { log('Veuillez saisir l\'URL et le token', 'err'); return; }
+  log('Configuration sauvegardée — connexion à '+haUrl, 'ok');
+  startFetching();
+}
+
+function startFetching() {
+  clearInterval(fetchTimer);
+  fetchHA();
+  fetchTimer = setInterval(fetchHA, REFRESH_MS);
+}
+
+/* ───────── INIT ───────── */
+initChart();
+setStatus('loading');
+log('Système initialisé — en attente de configuration');
+log('→ Entrez l\'URL Cloudflare + token, ou cliquez DÉMO');
+
+// Load saved config from localStorage
+try {
+  const saved = JSON.parse(localStorage.getItem('eolieneConfig') || '{}');
+  if (saved.url)   document.getElementById('haUrl').value   = saved.url;
+  if (saved.token) document.getElementById('haToken').value = saved.token;
+} catch(e) {}
+
+document.getElementById('haUrl').addEventListener('blur', () => {
+  try { localStorage.setItem('eolieneConfig', JSON.stringify({
+    url: document.getElementById('haUrl').value,
+    token: document.getElementById('haToken').value
+  })); } catch(e) {}
 });
-
-getData();
-setInterval(getData, 5000);
-
 </script>
-
 </body>
 </html>
