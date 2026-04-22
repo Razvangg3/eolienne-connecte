@@ -339,8 +339,8 @@
   <!-- CONFIG -->
   <div class="config-banner">
     <div>
-      <label>URL Cloudflare</label><br>
-      <input type="text" id="haUrl" placeholder="https://xxxx.trycloudflare.com" />
+      <label>URL Tailscale</label><br>
+      <input type="text" id="haUrl" placeholder="https://macbook-air-de-razvan-1.taila234c7.ts.net" />
     </div>
     <div>
       <label>Token HA</label><br>
@@ -350,8 +350,34 @@
       <button class="btn" onclick="saveConfig()">▶ Connecter</button>
     </div>
     <div style="padding-top:18px">
+      <button class="btn" onclick="testConnection()" style="border-color:var(--accent4);color:var(--accent4)">🔍 TESTER</button>
+    </div>
+    <div style="padding-top:18px">
       <button class="btn" onclick="loadDemo()" style="border-color:var(--muted);color:var(--muted)">DÉMO</button>
     </div>
+  </div>
+  <div class="config-banner" style="margin-top:-12px; gap:12px; flex-wrap:wrap;">
+    <div>
+      <label>Entité Température</label><br>
+      <input type="text" id="entityTemp" placeholder="sensor.temperature" style="width:220px"/>
+    </div>
+    <div>
+      <label>Entité Humidité</label><br>
+      <input type="text" id="entityHum" placeholder="sensor.humidity" style="width:220px"/>
+    </div>
+    <div>
+      <label>Entité Vent</label><br>
+      <input type="text" id="entityWind" placeholder="sensor.wind_speed" style="width:220px"/>
+    </div>
+  </div>
+  <!-- CORS HELP -->
+  <div id="cors-help" style="display:none; margin-bottom:12px; padding:16px 20px; border:1px solid var(--accent4); background:rgba(255,214,10,0.06); font-family:var(--mono); font-size:0.75rem; color:var(--accent4);">
+    <div style="margin-bottom:8px;">⚠️ <strong>ERREUR CORS DÉTECTÉE</strong> — Ajoute ceci dans ton <code>configuration.yaml</code> puis redémarre HA :</div>
+    <pre style="background:rgba(0,0,0,0.4); padding:12px; color:#c8e6f0; font-size:0.72rem; overflow-x:auto;">http:
+  cors_allowed_origins:
+    - https://razvangg3.github.io
+    - "*"</pre>
+    <div style="margin-top:8px; color:var(--muted);">📁 Fichier : <code>/config/configuration.yaml</code> dans Home Assistant</div>
   </div>
 
   <!-- ALERTS -->
