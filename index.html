@@ -24,9 +24,9 @@
       --mono:      'Share Tech Mono', monospace;
       --sans:      'Rajdhani', sans-serif;
     }
-
+ 
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-
+ 
     body {
       background: var(--bg);
       color: var(--text);
@@ -34,7 +34,7 @@
       min-height: 100vh;
       overflow-x: hidden;
     }
-
+ 
     /* ─── GRID BACKGROUND ─── */
     body::before {
       content: '';
@@ -45,7 +45,7 @@
       background-size: 40px 40px;
       pointer-events: none;
     }
-
+ 
     /* ─── SCANLINE ─── */
     body::after {
       content: '';
@@ -59,9 +59,9 @@
       );
       pointer-events: none;
     }
-
+ 
     .wrapper { position: relative; z-index: 1; max-width: 1200px; margin: 0 auto; padding: 24px 20px 48px; }
-
+ 
     /* ─── HEADER ─── */
     header {
       display: flex; align-items: center; justify-content: space-between;
@@ -80,7 +80,7 @@
       animation: scanH 3s linear infinite;
     }
     @keyframes scanH { 0%{opacity:0.3} 50%{opacity:1} 100%{opacity:0.3} }
-
+ 
     .logo { display: flex; align-items: center; gap: 14px; }
     .turbine-icon {
       width: 44px; height: 44px; position: relative;
@@ -88,7 +88,7 @@
     }
     @keyframes spinTurbine { to { transform: rotate(360deg); } }
     .turbine-icon svg { width: 44px; height: 44px; }
-
+ 
     .logo-text h1 {
       font-family: var(--mono);
       font-size: 1.15rem;
@@ -103,7 +103,7 @@
       font-family: var(--mono);
       letter-spacing: 0.08em;
     }
-
+ 
     .header-right { display: flex; align-items: center; gap: 20px; }
     .status-dot {
       width: 10px; height: 10px; border-radius: 50%;
@@ -114,7 +114,7 @@
     @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:0.5;transform:scale(1.4)} }
     .status-label { font-family: var(--mono); font-size: 0.72rem; color: var(--accent2); }
     .clock { font-family: var(--mono); font-size: 0.85rem; color: var(--muted); }
-
+ 
     /* ─── CONFIG BANNER ─── */
     .config-banner {
       display: flex; gap: 12px; flex-wrap: wrap;
@@ -151,7 +151,7 @@
       transition: background .2s, box-shadow .2s;
     }
     .btn:hover { background: rgba(0,229,255,0.12); box-shadow: var(--glow); }
-
+ 
     /* ─── ALERT ZONE ─── */
     #alert-zone { margin-bottom: 20px; display: flex; flex-direction: column; gap: 8px; }
     .alert {
@@ -167,11 +167,11 @@
     .alert.danger{ border-color: var(--accent3); background: rgba(255,77,109,0.07); color: var(--accent3); }
     .alert.ok    { border-color: var(--accent2); background: rgba(0,255,157,0.06); color: var(--accent2); }
     .alert-icon { font-size: 1.1rem; }
-
+ 
     /* ─── SENSOR CARDS ─── */
     .cards { display: grid; grid-template-columns: repeat(3,1fr); gap: 18px; margin-bottom: 24px; }
     @media(max-width:700px){ .cards{grid-template-columns:1fr;} }
-
+ 
     .card {
       background: var(--bg2);
       border: 1px solid var(--border);
@@ -187,9 +187,9 @@
     .card.temp::before   { background: linear-gradient(90deg, transparent, #ff8c42, transparent); }
     .card.hum::before    { background: linear-gradient(90deg, transparent, var(--accent), transparent); }
     .card.wind::before   { background: linear-gradient(90deg, transparent, var(--accent2), transparent); }
-
+ 
     .card:hover { border-color: rgba(0,229,255,0.4); }
-
+ 
     .card-label {
       font-family: var(--mono);
       font-size: 0.68rem;
@@ -200,7 +200,7 @@
       display: flex; align-items: center; gap: 8px;
     }
     .card-label span { font-size: 1rem; }
-
+ 
     .card-value {
       font-family: var(--mono);
       font-size: 2.6rem;
@@ -211,7 +211,7 @@
     .card.temp   .card-value { color: #ff8c42; text-shadow: 0 0 18px rgba(255,140,66,0.5); }
     .card.hum    .card-value { color: var(--accent); text-shadow: var(--glow); }
     .card.wind   .card-value { color: var(--accent2); text-shadow: var(--glow-g); }
-
+ 
     .card-unit { font-size: 1rem; opacity: 0.6; margin-left: 4px; }
     .card-sub {
       font-family: var(--mono);
@@ -219,7 +219,7 @@
       color: var(--muted);
       margin-top: 10px;
     }
-
+ 
     /* bar gauge */
     .gauge-bar {
       height: 3px;
@@ -236,7 +236,7 @@
     .card.temp  .gauge-fill { background: linear-gradient(90deg, #ff4d6d, #ff8c42); }
     .card.hum   .gauge-fill { background: linear-gradient(90deg, var(--accent), #0090a8); }
     .card.wind  .gauge-fill { background: linear-gradient(90deg, var(--accent2), #007a5a); }
-
+ 
     /* corner decoration */
     .card::after {
       content: '';
@@ -245,7 +245,7 @@
       border-right: 1px solid var(--border);
       border-bottom: 1px solid var(--border);
     }
-
+ 
     /* ─── CHART ─── */
     .chart-section {
       background: var(--bg2);
@@ -270,7 +270,7 @@
       background: linear-gradient(90deg, var(--border), transparent);
     }
     .chart-wrap { position: relative; height: 240px; }
-
+ 
     /* ─── LOG ─── */
     .log-section {
       background: var(--bg2);
@@ -290,7 +290,7 @@
     #log .msg { color: var(--muted); }
     #log .msg.ok { color: var(--accent2); }
     #log .msg.err { color: var(--accent3); }
-
+ 
     /* ─── SPINNER ─── */
     .spinner {
       display: inline-block; width: 10px; height: 10px;
@@ -299,7 +299,7 @@
       margin-left: 8px; vertical-align: middle;
     }
     @keyframes spin { to{transform:rotate(360deg)} }
-
+ 
     /* scrollbar */
     ::-webkit-scrollbar { width: 4px; }
     ::-webkit-scrollbar-track { background: transparent; }
@@ -308,7 +308,7 @@
 </head>
 <body>
 <div class="wrapper">
-
+ 
   <!-- HEADER -->
   <header>
     <div class="logo">
@@ -335,12 +335,12 @@
       <span class="clock" id="clock">--:--:--</span>
     </div>
   </header>
-
+ 
   <!-- CONFIG -->
   <div class="config-banner">
     <div>
-      <label>URL Tailscale</label><br>
-      <input type="text" id="haUrl" placeholder="https://macbook-air-de-razvan-1.taila234c7.ts.net" />
+      <label>URL Ngrok</label><br>
+      <input type="text" id="haUrl" placeholder="https://synergy-sensually-cozily.ngrok-free.dev" />
     </div>
     <div>
       <label>Token HA</label><br>
@@ -379,10 +379,10 @@
     - "*"</pre>
     <div style="margin-top:8px; color:var(--muted);">📁 Fichier : <code>/config/configuration.yaml</code> dans Home Assistant</div>
   </div>
-
+ 
   <!-- ALERTS -->
   <div id="alert-zone"></div>
-
+ 
   <!-- CARDS -->
   <div class="cards">
     <div class="card temp">
@@ -404,7 +404,7 @@
       <div class="gauge-bar"><div class="gauge-fill" id="windBar" style="width:0%"></div></div>
     </div>
   </div>
-
+ 
   <!-- CHART -->
   <div class="chart-section">
     <div class="section-title">// HISTORIQUE — 20 DERNIÈRES MESURES</div>
@@ -412,15 +412,15 @@
       <canvas id="historyChart"></canvas>
     </div>
   </div>
-
+ 
   <!-- LOG -->
   <div class="log-section">
     <div class="section-title">// JOURNAL SYSTÈME</div>
     <div id="log"></div>
   </div>
-
+ 
 </div>
-
+ 
 <script>
 /* ───────── CONFIG ───────── */
 const ENTITY_TEMP  = 'sensor.temperature';
@@ -428,7 +428,7 @@ const ENTITY_HUM   = 'sensor.humidity';
 const ENTITY_WIND  = 'sensor.wind_speed';
 const REFRESH_MS   = 5000;
 const HISTORY_MAX  = 20;
-
+ 
 /* ───────── STATE ───────── */
 let haUrl   = '';
 let haToken = '';
@@ -437,12 +437,12 @@ let chart;
 let fetchTimer;
 let demoMode = false;
 let demoT = 0;
-
+ 
 /* ───────── CLOCK ───────── */
 setInterval(() => {
   document.getElementById('clock').textContent = new Date().toLocaleTimeString('fr-FR');
 }, 1000);
-
+ 
 /* ───────── CHART INIT ───────── */
 function initChart() {
   const ctx = document.getElementById('historyChart').getContext('2d');
@@ -520,12 +520,12 @@ function initChart() {
     }
   });
 }
-
+ 
 /* ───────── ALERT SYSTEM ───────── */
 function updateAlerts(temp, hum, wind) {
   const zone = document.getElementById('alert-zone');
   zone.innerHTML = '';
-
+ 
   const alerts = [];
   if (temp !== null) {
     if (temp > 35)       alerts.push({ type:'danger', icon:'🔥', msg:`TEMPÉRATURE CRITIQUE : ${temp}°C — surchauffe possible` });
@@ -543,7 +543,7 @@ function updateAlerts(temp, hum, wind) {
   if (alerts.length === 0) {
     alerts.push({ type:'ok', icon:'✓', msg:'Conditions normales — tous les capteurs dans les limites' });
   }
-
+ 
   alerts.forEach(a => {
     const el = document.createElement('div');
     el.className = `alert ${a.type}`;
@@ -551,7 +551,7 @@ function updateAlerts(temp, hum, wind) {
     zone.appendChild(el);
   });
 }
-
+ 
 /* ───────── LOG ───────── */
 function log(msg, type='') {
   const el = document.getElementById('log');
@@ -560,7 +560,7 @@ function log(msg, type='') {
   el.scrollTop = el.scrollHeight;
   if (el.children.length > 30) el.removeChild(el.firstChild);
 }
-
+ 
 /* ───────── UPDATE CARD ───────── */
 function updateCard(valId, barId, subId, value, unit, max, ts) {
   const el = document.getElementById(valId);
@@ -571,7 +571,7 @@ function updateCard(valId, barId, subId, value, unit, max, ts) {
     ? Math.min(100, (parseFloat(value)/max)*100)+'%' : '0%';
   if (ts) document.getElementById(subId).textContent = `Mis à jour : ${ts}`;
 }
-
+ 
 /* ───────── PUSH TO HISTORY ───────── */
 function pushHistory(temp, hum, wind) {
   const t = new Date().toLocaleTimeString('fr-FR', {hour:'2-digit',minute:'2-digit',second:'2-digit'});
@@ -582,12 +582,12 @@ function pushHistory(temp, hum, wind) {
   push(history.wind,   wind  !== null ? parseFloat(wind)  : null);
   if (chart) chart.update();
 }
-
+ 
 /* ───────── FETCH HA ───────── */
 async function fetchHA() {
   if (demoMode) { runDemo(); return; }
   if (!haUrl || !haToken) return;
-
+ 
   setStatus('loading');
   try {
     const headers = {
@@ -599,12 +599,12 @@ async function fetchHA() {
       fetch(`${haUrl}/api/states/${ENTITY_HUM}`,   { headers }),
       fetch(`${haUrl}/api/states/${ENTITY_WIND}`,  { headers }),
     ]);
-
+ 
     let temp=null, hum=null, wind=null, ts='';
     if (rT.ok) { const d=await rT.json(); temp=d.state; ts=new Date(d.last_updated).toLocaleTimeString('fr-FR'); }
     if (rH.ok) { const d=await rH.json(); hum=d.state; }
     if (rW.ok) { const d=await rW.json(); wind=d.state; }
-
+ 
     updateCard('tempVal','tempBar','tempSub', temp,  '°C',    50, ts);
     updateCard('humVal', 'humBar', 'humSub',  hum,   '%',     100, ts);
     updateCard('windVal','windBar','windSub', wind,  ' km/h', 120, ts);
@@ -617,7 +617,7 @@ async function fetchHA() {
     log('Erreur de connexion : '+e.message, 'err');
   }
 }
-
+ 
 /* ───────── DEMO MODE ───────── */
 function loadDemo() {
   demoMode = true;
@@ -626,7 +626,7 @@ function loadDemo() {
   log('Mode démo activé — données simulées', 'ok');
   startFetching();
 }
-
+ 
 function runDemo() {
   demoT++;
   const temp  = +(18 + 10*Math.sin(demoT*0.15) + Math.random()*1.5).toFixed(1);
@@ -641,7 +641,7 @@ function runDemo() {
   setStatus('online');
   log(`[DEMO] T:${temp}°C H:${hum}% V:${wind}km/h`, 'ok');
 }
-
+ 
 /* ───────── STATUS ───────── */
 function setStatus(s) {
   const dot   = document.getElementById('statusDot');
@@ -650,7 +650,7 @@ function setStatus(s) {
   if (s==='offline') { dot.style.background='#ff4d6d'; dot.style.boxShadow='0 0 10px #ff4d6d'; label.style.color='#ff4d6d'; label.textContent='HORS LIGNE'; }
   if (s==='loading') { dot.style.background='#ffd60a'; dot.style.boxShadow='0 0 10px #ffd60a'; label.style.color='#ffd60a'; label.textContent='SYNCHRO…'; }
 }
-
+ 
 /* ───────── CONFIG ───────── */
 function saveConfig() {
   haUrl   = document.getElementById('haUrl').value.trim().replace(/\/$/, '');
@@ -660,26 +660,26 @@ function saveConfig() {
   log('Configuration sauvegardée — connexion à '+haUrl, 'ok');
   startFetching();
 }
-
+ 
 function startFetching() {
   clearInterval(fetchTimer);
   fetchHA();
   fetchTimer = setInterval(fetchHA, REFRESH_MS);
 }
-
+ 
 /* ───────── INIT ───────── */
 initChart();
 setStatus('loading');
 log('Système initialisé — en attente de configuration');
 log('→ Entrez l\'URL Cloudflare + token, ou cliquez DÉMO');
-
+ 
 // Load saved config from localStorage
 try {
   const saved = JSON.parse(localStorage.getItem('eolieneConfig') || '{}');
   if (saved.url)   document.getElementById('haUrl').value   = saved.url;
   if (saved.token) document.getElementById('haToken').value = saved.token;
 } catch(e) {}
-
+ 
 document.getElementById('haUrl').addEventListener('blur', () => {
   try { localStorage.setItem('eolieneConfig', JSON.stringify({
     url: document.getElementById('haUrl').value,
